@@ -15,61 +15,109 @@ class VideoView extends GetView<VideoImageController> {
         elevation: 4,
       ),
       body: SingleChildScrollView(
-        child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                height: Get.height / 2.32,
-                width: Get.width * 0.7,
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                height: 400, // Fixed height for video container
+                width: double.infinity,
+                margin: const EdgeInsets.symmetric(vertical: 16),
                 child: Obx(() {
                   if (controller.selectedVideoPath.value.isNotEmpty) {
-                    return Card(
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          AspectRatio(
-                            aspectRatio: 1,
-                            child: VideoPlayer(controller.videoPlayerController!),
+                          Expanded(
+                            child: AspectRatio(
+                              aspectRatio: controller.videoPlayerController?.value.aspectRatio ?? 16/9,
+                              child: VideoPlayer(controller.videoPlayerController!),
+                            ),
                           ),
-                          VideoProgressIndicator(
-                            controller.videoPlayerController!,
-                            allowScrubbing: true,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                icon: Icon(
-                                  controller.isVideoPlaying.isTrue
-                                      ? Icons.play_arrow
-                                      : Icons.pause,
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            color: Colors.black12,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                VideoProgressIndicator(
+                                  controller.videoPlayerController!,
+                                  allowScrubbing: true,
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
                                 ),
-                                onPressed: controller.togglePlayPause,
-                              ),
-                            ],
+                                IconButton(
+                                  icon: Icon(
+                                    controller.isVideoPlaying.isTrue
+                                        ? Icons.pause
+                                        : Icons.play_arrow,
+                                    color: Colors.black87,
+                                  ),
+                                  onPressed: controller.togglePlayPause,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     );
                   } else {
-                    return const Center( // Center the "No video selected" text
-                      child: Text('No video selected'),
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.video_library_outlined,
+                            size: 48,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No video selected',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }
                 }),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => controller.pickVideo(ImageSource.camera),
-                child: const Text('Pick Video from Camera'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => controller.pickVideo(ImageSource.camera),
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Camera'),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () => controller.pickVideo(ImageSource.gallery),
+                    icon: const Icon(Icons.photo_library),
+                    label: const Text('Gallery'),
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () => controller.pickVideo(ImageSource.gallery),
-                child: const Text('Pick Video from Gallery'),
-              ),
-              ElevatedButton(
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
                 onPressed: () => controller.deleteVideo(),
-                child: const Text('Delete Video'),
+                icon: const Icon(Icons.delete),
+                label: const Text('Delete Video'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.red,
+                ),
               ),
             ],
           ),
